@@ -20,7 +20,7 @@ Original file is located at
 !pip install torch==2.0.0
 !pip install sentencepiece==0.1.97
 !pip install tensorboardX==2.6
-!pip install gradio==3.23.0
+# !pip install gradio==3.23.0
 
 
 
