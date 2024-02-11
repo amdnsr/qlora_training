@@ -1,1 +1,1 @@
-python train_individual_model_for_individual_dataset.py --dataset_name=reddit --dataset_home=create_dataset_jsons_aadish --model_name=llama --model_adapter_output_home=model_adapter_output_home
+/home/kokil/anaconda3/envs/qlora_conda_3912_env/bin/python train_individual_model_for_individual_dataset.py --dataset_name=reddit --dataset_home=create_dataset_jsons_aadish --model_name=llama --model_adapter_output_home=model_adapter_output_home

@@ -24,7 +24,8 @@ Original file is located at
 
 
 
-
+from datetime import datetime
+print(datetime.now())
 import os
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, AutoTokenizer
@@ -153,6 +154,7 @@ config = LoraConfig(
 model = get_peft_model(model, config)
 
 
+print(datetime.now())
 if __name__ == "__main__":
     import argparse
 
@@ -192,7 +194,7 @@ if __name__ == "__main__":
     )
 
     model.print_trainable_parameters()
-    num_epochs = 1
+    num_epochs = 3
     # per_device_train_batch_size*gradient_accumulation_steps should be 16? QLoRA?
     # optim="paged_adamw_8bit",
     # val_set_size
@@ -233,4 +235,8 @@ if __name__ == "__main__":
     model.config.use_cache = False
     model = torch.compile(model)
     trainer.train()
+    # train_stats = trainer.get_training_stats()
+    # print(train_stats)
     model.save_pretrained(OUTPUT_DIR)
+    print(datetime.now())
+    print("="*100)
