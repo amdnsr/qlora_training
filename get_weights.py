@@ -13,7 +13,9 @@ from utils.callbacks import Iteratorize, Stream
 from utils.prompter import Prompter
 
 
-device_no = 0
+# device_no = 15
+device_no = 14
+# device_no = 13
 
 if torch.cuda.is_available():
     device = f"cuda:{device_no}"
@@ -269,6 +271,19 @@ def load_custom_dataset_dict_for_classifier(classifier_training_dataset_dict_pat
 
 print(datetime.now())
 if __name__ == "__main__":
+    # os.environ["CUDA_VISIBLE_DEVICES"] = "15"  # Replace "0,1" with the GPU device IDs you want to use
+    os.environ["CUDA_VISIBLE_DEVICES"] = "14"  # Replace "0,1" with the GPU device IDs you want to use
+    # os.environ["CUDA_VISIBLE_DEVICES"] = "13"  # Replace "0,1" with the GPU device IDs you want to use
+
+
+    # device_no = 15
+    device_no = 14
+    # device_no = 13
+
+    if torch.cuda.is_available():
+        device = f"cuda:{device_no}"
+    else:
+        device = "cpu"
     import argparse
 
     # Create an argument parser
@@ -298,10 +313,11 @@ if __name__ == "__main__":
 
     model = AutoModelForCausalLM.from_pretrained(
         base_model,
-        # quantization_config=bnb_config,
-        # device_map={"": device_no},
-        device_map="auto",
+        quantization_config=bnb_config,
+        device_map={"": device_no},
+        # device_map="auto",
     )
+    print(model.device)
     model.config.use_cache = False
     if base_or_finetuned == "finetuned":
         lora_weights = os.path.join(model_adapter_output_home, model_name, dataset_name)
@@ -310,7 +326,9 @@ if __name__ == "__main__":
             lora_weights,
             torch_dtype=torch.float16,
         )
-        model = model.merge_and_unload()
+        print("reached here")
+        # model = model.merge_and_unload()
+    print(model.device)
     print("reached here")
 
 
@@ -369,22 +387,23 @@ if __name__ == "__main__":
     print("="*100)
 
 
-        
-    train_dataset_classifier = convert_to_custom_dataset_for_classifier(model, train_data)
-    val_dataset_classifier = convert_to_custom_dataset_for_classifier(model, val_data)
+    with torch.no_grad():
+        train_dataset_classifier = convert_to_custom_dataset_for_classifier(model, train_data)
+        val_dataset_classifier = convert_to_custom_dataset_for_classifier(model, val_data)
 
-    from datasets import DatasetDict
+        from datasets import DatasetDict
 
-    # Combine train_dataset and val_dataset into a DatasetDict
-    dataset_dict_classifier = DatasetDict({"train": train_dataset_classifier, "val": val_dataset_classifier})
-
-
-    # Save the combined dataset to disk
-
-    classifier_training_dataset_dict_path = os.path.join(OUTPUT_DIR, f"{model_name}={base_or_finetuned}={dataset_name}.dataset_dict")
+        # Combine train_dataset and val_dataset into a DatasetDict
+        dataset_dict_classifier = DatasetDict({"train": train_dataset_classifier, "val": val_dataset_classifier})
 
 
-    save_custom_dataset_dict_for_classifier(dataset_dict_classifier, classifier_training_dataset_dict_path)
+        # Save the combined dataset to disk
+
+        classifier_training_dataset_dict_path = os.path.join(OUTPUT_DIR, f"{model_name}={base_or_finetuned}={dataset_name}.dataset_dict")
 
 
-    # www = load_custom_dataset_dict_for_classifier(classifier_training_dataset_dict_path)
+        save_custom_dataset_dict_for_classifier(dataset_dict_classifier, classifier_training_dataset_dict_path)
+
+
+        # www = load_custom_dataset_dict_for_classifier(classifier_training_dataset_dict_path)
+    print("="*50)
