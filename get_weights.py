@@ -13,6 +13,11 @@ from utils.callbacks import Iteratorize, Stream
 from utils.prompter import Prompter
 
 
+
+# os.environ["CUDA_VISIBLE_DEVICES"] = "15"  # Replace "0,1" with the GPU device IDs you want to use
+os.environ["CUDA_VISIBLE_DEVICES"] = "14"  # Replace "0,1" with the GPU device IDs you want to use
+# os.environ["CUDA_VISIBLE_DEVICES"] = "13"  # Replace "0,1" with the GPU device IDs you want to use
+
 # device_no = 15
 device_no = 14
 # device_no = 13
@@ -264,26 +269,29 @@ def save_custom_dataset_dict_for_classifier(dataset_dict_classifier, classifier_
     torch.save(dataset_dict_classifier, classifier_training_dataset_dict_path)
 
 
+def save_custom_dataset_split_for_classifier(dataset_classifier, classifier_training_dataset_split_path):
+    data_points = {
+        'last_hidden_state_of_last_token': [],
+        'label': []
+    }
+    for data_point in dataset_classifier:
+        data_points['last_hidden_state_of_last_token'].append(data_point['last_hidden_state_of_last_token'])
+        data_points['label'].append(data_point['label'])
+    torch.save(data_points, classifier_training_dataset_split_path)
+
+
 def load_custom_dataset_dict_for_classifier(classifier_training_dataset_dict_path):
     dataset_dict_classifier = torch.load(classifier_training_dataset_dict_path)
     return dataset_dict_classifier
 
 
+def load_custom_dataset_split_for_classifier(classifier_training_dataset_split_path):
+    return CustomDataset(torch.load(classifier_training_dataset_split_path))
+
+
 print(datetime.now())
 if __name__ == "__main__":
-    # os.environ["CUDA_VISIBLE_DEVICES"] = "15"  # Replace "0,1" with the GPU device IDs you want to use
-    os.environ["CUDA_VISIBLE_DEVICES"] = "14"  # Replace "0,1" with the GPU device IDs you want to use
-    # os.environ["CUDA_VISIBLE_DEVICES"] = "13"  # Replace "0,1" with the GPU device IDs you want to use
 
-
-    # device_no = 15
-    device_no = 14
-    # device_no = 13
-
-    if torch.cuda.is_available():
-        device = f"cuda:{device_no}"
-    else:
-        device = "cpu"
     import argparse
 
     # Create an argument parser
@@ -399,11 +407,19 @@ if __name__ == "__main__":
 
         # Save the combined dataset to disk
 
-        classifier_training_dataset_dict_path = os.path.join(OUTPUT_DIR, f"{model_name}={base_or_finetuned}={dataset_name}.dataset_dict")
+        # classifier_training_dataset_dict_path = os.path.join(OUTPUT_DIR, f"{model_name}={base_or_finetuned}={dataset_name}.dataset_dict")
+
+        classifier_training_dataset_split_path_train = os.path.join(OUTPUT_DIR, f"{model_name}={base_or_finetuned}={dataset_name}=train.dataset_split")
+
+        classifier_training_dataset_split_path_val = os.path.join(OUTPUT_DIR, f"{model_name}={base_or_finetuned}={dataset_name}=val.dataset_split")
 
 
-        save_custom_dataset_dict_for_classifier(dataset_dict_classifier, classifier_training_dataset_dict_path)
+        # save_custom_dataset_dict_for_classifier(dataset_dict_classifier, classifier_training_dataset_dict_path)
+
+        save_custom_dataset_split_for_classifier(train_dataset_classifier, classifier_training_dataset_split_path_train)
+        save_custom_dataset_split_for_classifier(val_dataset_classifier, classifier_training_dataset_split_path_val)
 
 
         # www = load_custom_dataset_dict_for_classifier(classifier_training_dataset_dict_path)
+    print(datetime.now())
     print("="*50)
